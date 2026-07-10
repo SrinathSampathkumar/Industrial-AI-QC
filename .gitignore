@@ -1,0 +1,55 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Dataset
+datasets/
+
+# Trained PatchCore models
+models/patchcore/
+
+# YOLO weights
+*.pt
+
+# Generated outputs
+outputs/
+backend/uploads/
+test_images/
+
+# Reports
+reports/heatmaps/
+reports/training/
+reports/raw_predictions.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+# PatchCore models
+models/patchcore/
+models/*.zip
+
+# Results
+results/
+runs/
+backend/results/
+
+# Outputs
+outputs/
+reports/heatmaps/
+reports/training/
+
+# Test files
+test_images/
+backend/uploads/
+
+# YOLO weights
+*.pt
+
+# Dataset
+datasets/
+
+# Python
+venv/
+__pycache__/
+*.pyc

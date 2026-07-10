@@ -1,0 +1,16 @@
+Category,Train Images,Test Images,Defect Types,Train Exists,Test Exists,Ground Truth Exists
+bottle,209,83,4,True,True,True
+cable,224,150,9,True,True,True
+capsule,219,132,6,True,True,True
+carpet,280,117,6,True,True,True
+grid,264,78,6,True,True,True
+hazelnut,391,110,5,True,True,True
+leather,245,124,6,True,True,True
+metal_nut,220,115,5,True,True,True
+pill,267,167,8,True,True,True
+screw,320,160,6,True,True,True
+tile,230,117,6,True,True,True
+toothbrush,60,42,2,True,True,True
+transistor,213,100,5,True,True,True
+wood,247,79,6,True,True,True
+zipper,240,151,8,True,True,True
