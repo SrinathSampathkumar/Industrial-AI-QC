@@ -92,26 +92,37 @@ class ModelRegistry:
 
     def is_trained(self, category: str) -> bool:
         """
-        Check whether a trained checkpoint exists.
+        Check whether at least one trained checkpoint exists.
+        Automatically finds the latest version.
         """
 
-        checkpoint = (
+        checkpoint_root = (
             self._base_dir
             / category
             / "Patchcore"
             / "MVTecAD"
             / category
-            / "v0"
+        )
+
+        if not checkpoint_root.exists():
+            return False
+
+        versions = sorted(
+            checkpoint_root.glob("v*"),
+            key=lambda p: int(p.name[1:])
+        )
+
+        if not versions:
+            return False
+
+        checkpoint = (
+            versions[-1]
             / "weights"
             / "lightning"
             / "model.ckpt"
         )
 
         return checkpoint.exists()
-
-    # ============================================================
-    # Threshold Utilities
-    # ============================================================
 
     def get_all_thresholds(self) -> dict:
         """
@@ -154,13 +165,33 @@ class ModelRegistry:
             logger.info(f"Using cached model for '{category}'.")
             return self._models[category]
 
-        checkpoint_path = (
+        checkpoint_root = (
             self._base_dir
             / category
             / "Patchcore"
             / "MVTecAD"
             / category
-            / "v0"
+        )
+
+        if not checkpoint_root.exists():
+            raise FileNotFoundError(
+                f"No checkpoint directory found for '{category}'."
+            )
+
+        versions = sorted(
+            checkpoint_root.glob("v*"),
+            key=lambda p: int(p.name[1:])
+        )
+
+        if not versions:
+            raise FileNotFoundError(
+                f"No trained versions found for '{category}'."
+            )
+
+        latest = versions[-1]
+
+        checkpoint_path = (
+            latest
             / "weights"
             / "lightning"
             / "model.ckpt"
