@@ -1,0 +1,24 @@
+category: grid
+
+model: yolov11n.pt
+
+confidence_threshold: 0.35
+iou_threshold: 0.45
+
+expected_classes:
+  - grid
+
+defect_classes:
+  - bent
+  - broken
+  - glue
+  - metal_contamination
+  - thread
+
+min_defect_size: 20
+
+input_size: 640
+
+save_crops: true
+save_labels: true
+save_predictions: true

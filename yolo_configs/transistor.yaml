@@ -1,0 +1,23 @@
+category: transistor
+
+model: yolov11n.pt
+
+confidence_threshold: 0.35
+iou_threshold: 0.45
+
+expected_classes:
+  - transistor
+
+defect_classes:
+  - bent_lead
+  - cut_lead
+  - damaged_case
+  - misplaced
+
+min_defect_size: 20
+
+input_size: 640
+
+save_crops: true
+save_labels: true
+save_predictions: true

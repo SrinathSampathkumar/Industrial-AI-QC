@@ -1,0 +1,24 @@
+category: leather
+
+model: yolov11n.pt
+
+confidence_threshold: 0.35
+iou_threshold: 0.45
+
+expected_classes:
+  - leather
+
+defect_classes:
+  - color
+  - cut
+  - fold
+  - glue
+  - poke
+
+min_defect_size: 20
+
+input_size: 640
+
+save_crops: true
+save_labels: true
+save_predictions: true

@@ -1,0 +1,23 @@
+category: metal_nut
+
+model: yolov11n.pt
+
+confidence_threshold: 0.35
+iou_threshold: 0.45
+
+expected_classes:
+  - metal_nut
+
+defect_classes:
+  - bent
+  - color
+  - flip
+  - scratch
+
+min_defect_size: 20
+
+input_size: 640
+
+save_crops: true
+save_labels: true
+save_predictions: true
