@@ -1,0 +1,2 @@
+# Test-only dependency. Compatible with Python 3.12.
+pytest>=8.0,<9.0
