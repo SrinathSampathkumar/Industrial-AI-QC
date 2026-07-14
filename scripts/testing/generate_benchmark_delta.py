@@ -1,132 +1,76 @@
-"""
-Generate Benchmark Delta Report
+"""Compare the Week-2 calibrated benchmark with the immutable Week-1 baseline."""
 
-Compares:
-Week 1 Benchmark
-vs
-Current Benchmark
+from __future__ import annotations
 
-Output:
-reports/benchmark_delta.csv
-"""
-
+import argparse
+import time
 from pathlib import Path
+
 import pandas as pd
 
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-BEFORE = PROJECT_ROOT / "reports" / "benchmark_week1.csv"
-AFTER = PROJECT_ROOT / "reports" / "benchmark_results.csv"
-
-OUT = PROJECT_ROOT / "reports" / "benchmark_delta.csv"
-
-if not BEFORE.exists():
-    raise FileNotFoundError(
-        f"Baseline benchmark not found:\n{BEFORE}"
-    )
-
-if not AFTER.exists():
-    raise FileNotFoundError(
-        f"Current benchmark not found:\n{AFTER}"
-    )
-
-before = pd.read_csv(BEFORE)
-after = pd.read_csv(AFTER)
-
-merged = before.merge(
-    after,
-    on="category",
-    suffixes=("_before", "_after")
+REPORTS_DIR = PROJECT_ROOT / "reports"
+DEFAULT_WEEK1 = REPORTS_DIR / "benchmark_week1.csv"
+DEFAULT_WEEK2 = REPORTS_DIR / "benchmark_results.csv"
+DEFAULT_OUTPUT = REPORTS_DIR / "benchmark_delta.csv"
+REQUIRED_COLUMNS = (
+    "category", "week1_accuracy", "week2_accuracy", "week1_f1", "week2_f1",
+    "accuracy_improvement", "f1_improvement", "threshold_used", "normalized_score_range",
 )
 
-rows = []
 
-for _, row in merged.iterrows():
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate the calibrated Week-2 benchmark delta report.")
+    parser.add_argument("--week1", type=Path, default=DEFAULT_WEEK1)
+    parser.add_argument("--week2", type=Path, default=DEFAULT_WEEK2)
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    return parser.parse_args()
 
-    accuracy_before = row["accuracy_before"]
-    accuracy_after = row["accuracy_after"]
 
-    f1_before = row["f1_before"]
-    f1_after = row["f1_after"]
-
-    accuracy_delta = round(
-        accuracy_after - accuracy_before,
-        4
+def generate_delta(week1_path: Path, week2_path: Path) -> pd.DataFrame:
+    if not week1_path.is_file() or not week2_path.is_file():
+        raise FileNotFoundError("Both Week-1 and Week-2 benchmark CSV files are required.")
+    week1 = pd.read_csv(week1_path)
+    week2 = pd.read_csv(week2_path)
+    merged = week1[["category", "accuracy", "f1"]].merge(
+        week2[["category", "accuracy", "f1", "threshold_used", "normalized_score_range"]],
+        on="category", validate="one_to_one", suffixes=("_week1", "_week2"),
     )
-
-    f1_delta = round(
-        f1_after - f1_before,
-        4
-    )
-
-    if accuracy_delta > 0.10:
-        status = "Major Improvement"
-    elif accuracy_delta > 0:
-        status = "Improved"
-    elif accuracy_delta == 0:
-        status = "No Change"
-    else:
-        status = "Reduced"
-
-    rows.append({
-
-        # Category
-        "category": row["category"],
-
-        # Dataset
-        "images": row["images_after"],
-
-        # Accuracy
-        "accuracy_before": accuracy_before,
-        "accuracy_after": accuracy_after,
-        "accuracy_delta": accuracy_delta,
-
-        # F1
-        "f1_before": f1_before,
-        "f1_after": f1_after,
-        "f1_delta": f1_delta,
-
-        # Current Metrics
-        "precision": row["precision_after"],
-        "recall": row["recall_after"],
-        "auroc": row["auroc_after"],
-        "threshold": row["threshold_after"],
-
-        # Training Configuration
-        "backbone": "wide_resnet50_2",
-        "layers": "layer2+layer3",
-        "coreset_ratio": 0.10,
-        "num_neighbors": 1,
-        "batch_size": 8,
-
-        # Experiment Details
-        "experiment_name": "FineTune_v3",
-        "experiment_date": "2026-07-11",
-
-        # Model Version
-        "model_version": "latest",
-
-        # Final Status
-        "status": status
+    delta = pd.DataFrame({
+        "category": merged["category"],
+        "week1_accuracy": merged["accuracy_week1"].round(4),
+        "week2_accuracy": merged["accuracy_week2"].round(4),
+        "week1_f1": merged["f1_week1"].round(4),
+        "week2_f1": merged["f1_week2"].round(4),
+        "accuracy_improvement": (merged["accuracy_week2"] - merged["accuracy_week1"]).round(4),
+        "f1_improvement": (merged["f1_week2"] - merged["f1_week1"]).round(4),
+        "threshold_used": merged["threshold_used"].round(4),
+        "normalized_score_range": merged["normalized_score_range"],
     })
+    if tuple(delta.columns) != REQUIRED_COLUMNS:
+        raise RuntimeError("Delta report schema is not the required Week-2 schema.")
+    return delta.sort_values("category").reset_index(drop=True)
 
-delta = pd.DataFrame(rows)
 
-delta = delta.sort_values(
-    by="accuracy_delta",
-    ascending=False
-)
+def main() -> int:
+    args = parse_args()
+    started = time.perf_counter()
+    delta = generate_delta(args.week1, args.week2)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    delta.to_csv(args.output, index=False)
 
-delta.to_csv(
-    OUT,
-    index=False
-)
+    best = delta.loc[delta["accuracy_improvement"].idxmax()]
+    worst = delta.loc[delta["accuracy_improvement"].idxmin()]
+    print("WEEK-2 BENCHMARK SUMMARY")
+    print(f"Average accuracy improvement: {delta['accuracy_improvement'].mean():+.4f}")
+    print(f"Average F1 improvement: {delta['f1_improvement'].mean():+.4f}")
+    print(f"Best category: {best['category']} ({best['accuracy_improvement']:+.4f} accuracy)")
+    print(f"Worst category: {worst['category']} ({worst['accuracy_improvement']:+.4f} accuracy)")
+    print(f"Execution time: {time.perf_counter() - started:.2f}s")
+    print(f"Saved: {args.output}")
+    return 0
 
-print("=" * 70)
-print("BENCHMARK DELTA")
-print("=" * 70)
 
-print(delta)
-
-print("\nSaved to:")
-print(OUT)
+if __name__ == "__main__":
+    raise SystemExit(main())

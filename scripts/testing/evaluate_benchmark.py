@@ -1,115 +1,46 @@
-from pathlib import Path
-import pandas as pd
+"""Re-evaluate an existing calibrated Week-2 raw-score report.
 
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score
-)
+This is a lightweight validation entry point for CI or report regeneration. It
+uses the same calibration-aware evaluation function as ``benchmark_patchcore``.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-RAW = PROJECT_ROOT / "reports" / "raw_predictions.csv"
-OUT = PROJECT_ROOT / "reports" / "benchmark_results.csv"
+from scripts.registry.model_registry import ModelRegistry
+from scripts.testing.benchmark_patchcore import (
+    DEFAULT_RESULTS_OUTPUT,
+    DEFAULT_WEEK2_RAW_OUTPUT,
+    evaluate_calibrated_scores,
+    load_calibration,
+    read_raw_predictions,
+    verify_registry,
+)
 
-df = pd.read_csv(RAW)
 
-results = []
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Validate and regenerate calibrated Week-2 metrics.")
+    parser.add_argument("--raw-input", type=Path, default=DEFAULT_WEEK2_RAW_OUTPUT)
+    parser.add_argument("--results-output", type=Path, default=DEFAULT_RESULTS_OUTPUT)
+    args = parser.parse_args()
 
-print("="*70)
-print("PATCHCORE BENCHMARK")
-print("="*70)
+    calibration = load_calibration()
+    registry = ModelRegistry()
+    verify_registry(registry, calibration, load_models=False)
+    raw = read_raw_predictions(args.raw_input)
+    _, results = evaluate_calibrated_scores(raw, registry, calibration)
+    args.results_output.parent.mkdir(parents=True, exist_ok=True)
+    results.to_csv(args.results_output, index=False)
+    print(f"Validated {len(results)} calibrated categories and wrote {args.results_output}")
+    return 0
 
-for category in sorted(df["category"].unique()):
 
-    cat = df[df["category"] == category]
-
-    # Ground Truth
-    y_true = (cat["true_label"] == "Anomaly").astype(int)
-
-    # Prediction
-    y_pred = (cat["prediction"] == "Anomaly").astype(int)
-
-    # Score
-    y_score = cat["score"]
-
-    accuracy = accuracy_score(y_true, y_pred)
-
-    precision = precision_score(
-        y_true,
-        y_pred,
-        zero_division=0
-    )
-
-    recall = recall_score(
-        y_true,
-        y_pred,
-        zero_division=0
-    )
-
-    f1 = f1_score(
-        y_true,
-        y_pred,
-        zero_division=0
-    )
-
-    try:
-        auroc = roc_auc_score(
-            y_true,
-            y_score
-        )
-    except:
-        auroc = 0
-
-    threshold = cat["threshold"].mean()
-
-    results.append({
-
-        "category": category,
-
-        "images": len(cat),
-
-        "accuracy": round(accuracy,4),
-
-        "precision": round(precision,4),
-
-        "recall": round(recall,4),
-
-        "f1": round(f1,4),
-
-        "auroc": round(auroc,4),
-
-        "threshold": round(threshold,4)
-
-    })
-
-result = pd.DataFrame(results)
-
-result.to_csv(OUT,index=False)
-
-print(result)
-
-print("\n")
-print("="*70)
-print("TOP 3 BEST")
-print("="*70)
-
-print(result.sort_values(
-    "f1",
-    ascending=False
-).head(3))
-
-print("\n")
-print("="*70)
-print("TOP 3 WORST")
-print("="*70)
-
-print(result.sort_values(
-    "f1",
-    ascending=True
-).head(3))
-
-print("\nSaved to:")
-print(OUT)
+if __name__ == "__main__":
+    raise SystemExit(main())
