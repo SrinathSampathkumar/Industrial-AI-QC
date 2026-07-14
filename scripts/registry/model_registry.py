@@ -8,6 +8,9 @@ Compatible with Python 3.12 and Anomalib 2.5.
 import logging
 from pathlib import Path
 from typing import Dict, List
+import json
+from unicodedata import category
+from xml.parsers.expat import model
 
 import torch
 from anomalib.models import Patchcore
@@ -16,23 +19,17 @@ from anomalib.models import Patchcore
 # Final Thresholds (Benchmark Results)
 # ============================================================
 
-MODEL_THRESHOLDS = {
-    "bottle": 40.4697,
-    "cable": 45.4637,
-    "capsule": 28.0012,
-    "carpet": 34.8693,
-    "grid": 34.4564,
-    "hazelnut": 50.6877,
-    "leather": 39.7085,
-    "metal_nut": 44.0953,
-    "pill": 35.4441,
-    "screw": 34.8573,
-    "tile": 39.5625,
-    "toothbrush": 37.3722,
-    "transistor": 40.5637,
-    "wood": 44.3572,
-    "zipper": 31.7607,
-}
+THRESHOLD_FILE = (
+    Path("models")
+    / "thresholds"
+    / "thresholds.json"
+)
+
+if THRESHOLD_FILE.exists():
+    with open(THRESHOLD_FILE, "r", encoding="utf-8") as f:
+        THRESHOLD_DATA = json.load(f)
+else:
+    THRESHOLD_DATA = {}
 
 print("=" * 60)
 print("MODEL_REGISTRY FILE LOADED")
@@ -124,22 +121,19 @@ class ModelRegistry:
 
         return checkpoint.exists()
 
-    def get_all_thresholds(self) -> dict:
-        """
-        Return benchmark thresholds.
-        """
-        return MODEL_THRESHOLDS.copy()
+    def get_all_thresholds(self):
+
+        return {
+            category: data["threshold"]
+            for category, data in THRESHOLD_DATA.items()
+        }
 
     def get_threshold(self, category: str) -> float:
-        """
-        Return threshold for a category.
 
-        Uses benchmark threshold first.
-        Falls back to checkpoint threshold.
-        """
-
-        if category in MODEL_THRESHOLDS:
-            return MODEL_THRESHOLDS[category]
+        if category in THRESHOLD_DATA:
+            return float(
+                THRESHOLD_DATA[category]["threshold"]
+            )
 
         model = self.load(category)
 

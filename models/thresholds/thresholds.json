@@ -1,0 +1,122 @@
+{
+    "bottle": {
+        "threshold": 0.397,
+        "best_f1": 1.0,
+        "min_score": 0.3023,
+        "max_score": 1.0,
+        "validation_images": 83,
+        "optimized_on": "2026-07-14 13:07:28"
+    },
+    "cable": {
+        "threshold": 0.5488,
+        "best_f1": 0.9405,
+        "min_score": 0.4317,
+        "max_score": 1.0,
+        "validation_images": 150,
+        "optimized_on": "2026-07-14 13:07:28"
+    },
+    "capsule": {
+        "threshold": 0.5523,
+        "best_f1": 0.9686,
+        "min_score": 0.4938,
+        "max_score": 1.0,
+        "validation_images": 132,
+        "optimized_on": "2026-07-14 13:07:28"
+    },
+    "carpet": {
+        "threshold": 0.4904,
+        "best_f1": 0.9609,
+        "min_score": 0.3582,
+        "max_score": 1.0,
+        "validation_images": 117,
+        "optimized_on": "2026-07-14 13:07:29"
+    },
+    "grid": {
+        "threshold": 0.5409,
+        "best_f1": 0.9739,
+        "min_score": 0.3909,
+        "max_score": 1.0,
+        "validation_images": 78,
+        "optimized_on": "2026-07-14 13:07:29"
+    },
+    "hazelnut": {
+        "threshold": 0.4409,
+        "best_f1": 1.0,
+        "min_score": 0.2632,
+        "max_score": 1.0,
+        "validation_images": 110,
+        "optimized_on": "2026-07-14 13:07:29"
+    },
+    "leather": {
+        "threshold": 0.4088,
+        "best_f1": 1.0,
+        "min_score": 0.312,
+        "max_score": 1.0,
+        "validation_images": 124,
+        "optimized_on": "2026-07-14 13:07:29"
+    },
+    "metal_nut": {
+        "threshold": 0.524,
+        "best_f1": 1.0,
+        "min_score": 0.3376,
+        "max_score": 1.0,
+        "validation_images": 115,
+        "optimized_on": "2026-07-14 13:07:29"
+    },
+    "pill": {
+        "threshold": 0.5509,
+        "best_f1": 0.9603,
+        "min_score": 0.4042,
+        "max_score": 1.0,
+        "validation_images": 167,
+        "optimized_on": "2026-07-14 13:07:30"
+    },
+    "screw": {
+        "threshold": 0.6561,
+        "best_f1": 0.9536,
+        "min_score": 0.4152,
+        "max_score": 1.0,
+        "validation_images": 160,
+        "optimized_on": "2026-07-14 13:07:30"
+    },
+    "tile": {
+        "threshold": 0.4814,
+        "best_f1": 1.0,
+        "min_score": 0.3707,
+        "max_score": 1.0,
+        "validation_images": 117,
+        "optimized_on": "2026-07-14 13:07:30"
+    },
+    "toothbrush": {
+        "threshold": 0.5268,
+        "best_f1": 0.9355,
+        "min_score": 0.4493,
+        "max_score": 1.0,
+        "validation_images": 42,
+        "optimized_on": "2026-07-14 13:07:30"
+    },
+    "transistor": {
+        "threshold": 0.4305,
+        "best_f1": 0.9512,
+        "min_score": 0.2342,
+        "max_score": 1.0,
+        "validation_images": 100,
+        "optimized_on": "2026-07-14 13:07:30"
+    },
+    "wood": {
+        "threshold": 0.4602,
+        "best_f1": 0.9748,
+        "min_score": 0.2101,
+        "max_score": 1.0,
+        "validation_images": 79,
+        "optimized_on": "2026-07-14 13:07:30"
+    },
+    "zipper": {
+        "threshold": 0.52,
+        "best_f1": 0.9748,
+        "min_score": 0.414,
+        "max_score": 1.0,
+        "validation_images": 151,
+        "optimized_on": "2026-07-14 13:07:31"
+    }
+}
