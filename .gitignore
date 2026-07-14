@@ -53,3 +53,16 @@ datasets/
 venv/
 __pycache__/
 *.pyc
+
+# Generated YOLO dataset
+datasets_yolo/
+
+# YOLO training outputs
+runs/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Logs
+*.log
