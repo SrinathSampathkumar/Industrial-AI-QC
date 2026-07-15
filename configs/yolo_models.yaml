@@ -1,0 +1,11 @@
+# YOLO Model Weight Paths
+# =======================
+# Central registry for YOLO model weights used in this project.
+# Referenced by:
+#   - backend/yolo_api.py
+#   - scripts/testing/compare_yolo_models.py
+#
+# Paths are relative to the project root.
+
+pretrained: "yolo11n.pt"
+finetuned: "runs/detect/runs/msme_defect_detection-3/weights/best.pt"

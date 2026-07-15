@@ -25,18 +25,28 @@ class YOLODetector:
     YOLO detector with category-specific configuration loading.
     """
 
-    def __init__(self):
+    def __init__(self, model_path: str = None):
         """
         Initialize YOLO detector.
+
+        Args:
+            model_path: Optional path to a YOLO .pt weights file.
+                        Relative paths are resolved from the project root.
+                        When None (default), loads the pretrained yolo11n.pt —
+                        identical to the original behaviour.
         """
 
         self.project_root = Path(__file__).resolve().parents[2]
 
         self.config_dir = self.project_root / "yolo_configs"
 
-        self.model = YOLO(
-            self.project_root / "yolo11n.pt"
-        )
+        if model_path is None:
+            weights = self.project_root / "yolo11n.pt"
+        else:
+            p = Path(model_path)
+            weights = p if p.is_absolute() else self.project_root / p
+
+        self.model = YOLO(str(weights))
 
     def load_config(self, category: str) -> dict:
         """

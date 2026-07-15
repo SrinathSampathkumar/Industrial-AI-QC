@@ -18,6 +18,7 @@ from fastapi.responses import JSONResponse
 
 from scripts.registry.model_registry import ModelRegistry
 from scripts.api.category_router import route_inspection
+from backend.yolo_api import router as yolo_router
 
 # -------------------------------------------------------
 # FastAPI
@@ -28,6 +29,8 @@ app = FastAPI(
     version="2.0",
     description="Multi-category Industrial Defect Detection using PatchCore"
 )
+
+app.include_router(yolo_router)
 
 registry = ModelRegistry()
 
